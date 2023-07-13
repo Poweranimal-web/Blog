@@ -7,6 +7,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import Reg from './Reg.js';
+import Auth from './Auth.js'
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -17,6 +18,7 @@ root.render(
         <Routes>
           <Route path="/" element={<App/>}/>
           <Route path="/reg" element={<Reg/>}/>
+          <Route path="/auth" element={<Auth/>}/>
         </Routes>
     </BrowserRouter>
   </React.StrictMode>

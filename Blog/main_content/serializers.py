@@ -4,7 +4,9 @@ from main_content.models import *
 class AccountSerializer(ModelSerializer):
     class Meta:
         model = Customers
-        fields = "__all__"
+        fields = ['last_name','first_name','email','password','phone_number','about_me']
+        def save(self):
+            return super().save()
 class TestSerializer(Serializer):
     name = serializers.CharField(max_length=100)
     status = serializers.CharField(max_length=100)

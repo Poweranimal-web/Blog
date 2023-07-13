@@ -1,0 +1,6 @@
+#disable.mb-2.hidden {
+    display: none;
+}
+#active.mb-2.hidden{
+    display: block;
+}

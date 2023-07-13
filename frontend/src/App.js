@@ -1,26 +1,50 @@
 import axios from "axios";
 import React from "react";
-import { Link } from 'react-router-dom'
 import "./App.css"
+import Cookies from 'js-cookie';
+// axios.defaults.xsrfHeaderName = "XSRF-TOKEN";
+// axios.defaults.xsrfCookieName = "HTTP_X_XSRF_TOKEN";
+// axios.defaults.withCredentials = true;
 class App extends React.Component{
   constructor(props){
     super(props);
-    this.state = {last_name:"", first_name:""}
-    
+    this.state = {last_name:"", first_name:"",email: "" ,login: false, token:  Cookies.get('token')===undefined? "" : Cookies.get('token') }
+    this.csrfCookie = Cookies.get('csrftoken'); 
+    this.logout = this.logout.bind(this);
   }
   componentDidMount(){
-    axios.get("http://127.0.0.1:8000/").then((response)=> {
-        var data = response.data;
-        // this.setState({
-        //   name: data.Name,
-        //   status: data.status
-        // });
-
+    const config = {
+      headers: { 'Content-Type': 'application/json', 
+                //  "csrftoken": this.csrfCookie
+    }
+  };
+  const bodyParameters ={"token": this.state.token, "state": "check_auth"};
+  console.log(bodyParameters);
+    axios.post("http://127.0.0.1:8000/",bodyParameters, config
+    ).then((response)=> 
+    {
+      let data = response.data;
+      console.log(data);
+      if (data.state === "exist"){
+        this.setState({
+          last_name: data.last_name,
+          first_name: data.first_name,
+          email: data.email,
+          login: true
+        });
+        this.forceUpdate()
       }
-        
-    );
+    }).catch((e) => {
+      console.error(e.response.data);  
+    });
+  }
+  logout(){
+    this.setState({last_name:"", first_name:"",email: "" ,login: false, token: ""});
+    Cookies.remove("token")
   }
   render(){
+    const login = this.state.login;
+    let data = this.state;
     return (
       <nav className="navbar navbar-inline navbar-expand-lg bg-dark navbar-dark">
         <div className="container-fluid">
@@ -41,16 +65,31 @@ class App extends React.Component{
                   </li>
               </ul>
             </div>
-            <div className="collapse navbar-collapse" id="content">
-              <ul className="navbar-nav ms-auto">
-                    <li className="nav-item">
-                      <a className="nav-link" href="/#">Log in</a>
-                    </li>
-                    <li className="nav-item">
-                      <a className="nav-link" href="/reg">Sign up</a>
-                    </li>
-              </ul>
-            </div>
+            { login===false &&
+              <div className="collapse navbar-collapse" id="content">
+                <ul className="navbar-nav ms-auto">
+                      <li className="nav-item">
+                        <a className="nav-link" href="/auth">Log in</a>
+                      </li>
+                      <li className="nav-item">
+                        <a className="nav-link" href="/reg">Sign up</a>
+                      </li>
+                </ul>
+              </div>
+            }
+            { login===true &&
+              <div className="collapse navbar-collapse ms-auto" id="content">
+                  <div className="dropdown ms-auto">
+                      <button type="button" className="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown">Welcome, {data.last_name} {data.first_name}</button>
+                      <ul className="dropdown-menu">
+                        <li><a className="dropdown-item" href="/#">Link 1</a></li>
+                        <li><a className="dropdown-item" href="/#">Link 2</a></li>
+                        <li><a className="dropdown-item" href="/" onClick={this.logout}>Logout</a></li>
+                      </ul>
+                  </div>
+              </div>
+
+            }
         </div>
       </nav>
 

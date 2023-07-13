@@ -19,5 +19,7 @@ from rest_framework import routers
 from main_content import views
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", views.MainPage.as_view(), name="main")
+    path("", views.MainPage.as_view(), name="main"),
+    path("reg", views.RegPage.as_view(), name="reg"),
+    path("auth", views.AuthPage.as_view(), name="auth"),
 ]
