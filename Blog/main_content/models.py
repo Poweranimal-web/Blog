@@ -6,6 +6,10 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
+class Roles(models.Model):
+    name = models.CharField(max_length=120)
+    def __str__(self):
+        return self.name
 class Customers(models.Model):
     last_name = models.CharField(max_length=50)
     first_name = models.CharField(max_length=50)
@@ -13,8 +17,17 @@ class Customers(models.Model):
     password = models.CharField(max_length=50)
     phone_number = models.CharField(max_length=15,blank=True,null=True)
     about_me = models.TextField(max_length=1000,blank=True, null=True)
-
-
+    role = models.ForeignKey(Roles,on_delete=models.CASCADE,blank=True,null=True)
+    def __str__(self):
+        return "{surname} {name}".format(surname=self.last_name,name=self.first_name)
+class Blogs(models.Model):
+    title_image = models.ImageField(upload_to="title/",blank=True,null=True)
+    title = models.CharField(max_length=120)
+    main_text = models.TextField()
+    author = models.ForeignKey(Customers,on_delete=models.CASCADE, blank=True, null=True)
+class BlogImages(models.Model):
+    main_images = models.ImageField(upload_to="main/", blank=True, null=True)
+    blog = models.ForeignKey(Blogs,on_delete=models.CASCADE, blank=True, null=True)
 class MyOwnToken(models.Model):
     """
     The default authorization token model.

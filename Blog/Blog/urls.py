@@ -17,9 +17,13 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from main_content import views
+from django.conf import settings
+from django.conf.urls.static import static
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", views.MainPage.as_view(), name="main"),
     path("reg", views.RegPage.as_view(), name="reg"),
     path("auth", views.AuthPage.as_view(), name="auth"),
-]
+    path("blogs", views.BlogsPage.as_view(), name="blogs"),
+    path("blogs/detail",views.DetailBlogPage.as_view(), name="detail")
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
