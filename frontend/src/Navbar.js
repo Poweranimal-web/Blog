@@ -5,6 +5,7 @@ import Cookies from 'js-cookie';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Blogs from "./Blogs";
 import DetailBlog from "./Detail_Blog";
+import CreateBlog from "./NewBlog";
 class Navbar extends React.Component{
   constructor(props){
     super(props);
@@ -99,6 +100,7 @@ class Navbar extends React.Component{
               <Route path="/blogs" element={<Blogs email={data.email}/>}>
               </Route>
               <Route path="/blogs/:id"  element={<DetailBlog/>}/>
+              <Route path="/blogs/create"  element={<CreateBlog/>}/>
           </Routes>
          }
       </div>

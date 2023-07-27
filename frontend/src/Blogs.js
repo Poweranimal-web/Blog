@@ -17,7 +17,7 @@ axios.post("http://127.0.0.1:8000/blogs", {"state": "get_data" ,"email":props.em
 return(
     <div className="container">
             <div className="col-md-12">
-                <button className="btn btn-primary mt-4 w-75">+</button>
+                <a href="/blogs/create"><button className="btn btn-primary mt-4 w-75">+</button></a>
             </div>
             {addblock && data.map((item) =>
             <div className="col-md-12">

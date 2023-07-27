@@ -84,14 +84,12 @@ class DetailBlogPage(APIView):
             for id in on_delete:
                 BlogImages.objects.filter(id=id).delete()
         elif dict_data["change_title_image"] == 'true':
-            print("change_title_image")
             blog.title_image = dict_data["title_image"]
             blog.title = dict_data["title"]
             blog.main_text = dict_data["main_text"]
             for id in on_delete:
                 BlogImages.objects.filter(id=id).delete()
         elif dict_data["change_extra_images"] == 'true':
-            print('change_extra_images')
             blog.title = dict_data["title"]
             blog.main_text = dict_data["main_text"]
             for index in range(len(request.FILES)):
@@ -106,6 +104,17 @@ class DetailBlogPage(APIView):
             for id in on_delete:
                 BlogImages.objects.filter(id=id).delete()
         blog.save()
+        return Response({"state": "good"})
+class CreateBlog(APIView):
+    def post(self, request):
+        data = request.data
+        dict_data = data.dict()
+        author = Customers.objects.get(id=dict_data["id_customer"])
+        blog = Blogs.objects.create(title_image=dict_data["title_image"], title=dict_data["title"], main_text=dict_data["main_text"], author=author)
+        for index in range(len(request.FILES) - 1):
+            file_key = f'image_{index}'
+            file_obj = request.FILES.get(file_key)
+            BlogImages.objects.update_or_create(main_images=file_obj, blog=blog)
         return Response({"state": "good"})
 class AuthPage(APIView):
     def post(self, request):
