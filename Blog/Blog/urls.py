@@ -27,4 +27,7 @@ urlpatterns = [
     path("blogs", views.BlogsPage.as_view(), name="blogs"),
     path("blogs/detail",views.DetailBlogPage.as_view(), name="detail"),
     path("blogs/create",views.CreateBlog.as_view(), name="create"),
+    path("blogs/delete",views.DeleteBlog.as_view(), name="delete"),
+    path("main", views.MainContent.as_view(), name="main"),
+    path("about", views.AboutBlog.as_view(), name="about"),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

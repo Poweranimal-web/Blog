@@ -4,6 +4,8 @@ import "./App.css"
 import Cookies from 'js-cookie';
 import Navbar from "./Navbar";
 import Main from "./Main";
+import AboutBlog from "./AboutBlog";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 class App extends React.Component{
   constructor(props){
     super(props);
@@ -13,10 +15,15 @@ class App extends React.Component{
   render(){
     
     return (
-      <div>
-        <Navbar/>
-        <Main/>
-      </div>
+        <div>
+            <Navbar />
+            <Routes>
+              <Route path="/" element={<Main />} />
+              <Route path="/blog/:id" element={<AboutBlog/>} />
+            </Routes>
+        </div>  
+
+    
     );
   }
 } 

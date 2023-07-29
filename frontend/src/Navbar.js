@@ -51,7 +51,7 @@ class Navbar extends React.Component{
       <div>
       <nav className="navbar navbar-inline navbar-expand-lg bg-dark navbar-dark">
         <div className="container-fluid">
-            <a className="navbar-brand" href="/#">Website</a>
+            <a className="navbar-brand" href="/">Website</a>
             <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#content">
               <span className="navbar-toggler-icon"></span>
             </button>

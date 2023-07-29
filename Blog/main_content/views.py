@@ -36,6 +36,12 @@ class RegPage(APIView):
         else:
             print(serializer.errors)
             return Response({"state":"failed"})
+class DeleteBlog(APIView):
+    def post(self, request):
+        data = request.data
+        id = data["id"]
+        Blogs.objects.filter(id=id).delete()
+        return Response({"state":"deleted"})
 class BlogsPage(APIView):
     def post(self, request):
         data = request.data
@@ -52,6 +58,29 @@ class BlogsPage(APIView):
         except IndexError:
             response = {"state": "doesn't exist"}
         return Response(data=response)
+class MainContent(APIView):
+    def post(self, request):
+        data = request.data
+        blogs = Blogs.objects.all().order_by("-create_date","create_time").values()
+        if data["state"] == "get_data":
+            for blog in blogs:
+                author = Customers.objects.filter(id=blog['author_id']).values()[0]
+                blog["last_name"] = author["last_name"]
+                blog["first_name"] = author["first_name"]
+        return Response(blogs)
+class AboutBlog(APIView):
+    def get(self, request):
+        data = request.query_params
+        response = {}
+        if data["state"] == "get_data":
+            blog = Blogs.objects.filter(id=data["id"]).values()[0]
+            customer = Customers.objects.filter(id=blog["author_id"]).values()[0]
+            images = BlogImages.objects.filter(blog__id=data["id"]).values()
+            blog["images"] = images
+            blog["last_name"] = customer["last_name"]
+            blog["first_name"] = customer["first_name"]
+            response = blog
+        return Response(response)
 class DetailBlogPage(APIView):
     parser_classes = [MultiPartParser]
     def get(self, request):
@@ -114,7 +143,7 @@ class CreateBlog(APIView):
         for index in range(len(request.FILES) - 1):
             file_key = f'image_{index}'
             file_obj = request.FILES.get(file_key)
-            BlogImages.objects.update_or_create(main_images=file_obj, blog=blog)
+            BlogImages.objects.create(main_images=file_obj, blog=blog)
         return Response({"state": "good"})
 class AuthPage(APIView):
     def post(self, request):

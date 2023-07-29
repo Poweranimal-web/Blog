@@ -126,7 +126,7 @@ CSRF_COOKIE_SECURE = True
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/Kyiv"
 
 USE_I18N = True
 

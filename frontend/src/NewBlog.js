@@ -57,7 +57,7 @@ function titleImageHandle(event){
   let file = event.target.files;
   setData(prevData => {
     const Data = {...prevData};
-    Data.title_image = file[0].name;
+    Data.title_image = file[0];
     return Data; 
   });
 }

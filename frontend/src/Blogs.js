@@ -14,6 +14,15 @@ axios.post("http://127.0.0.1:8000/blogs", {"state": "get_data" ,"email":props.em
             }
         });
 },[]);
+function Delete(event, id){
+    event.preventDefault();
+    axios.post("http://127.0.0.1:8000/blogs/delete", {"id": id}).then((response)=>{
+            const answer = response.data;
+            if (answer.state == "deleted"){
+                window.location.reload();
+            }
+    });
+}
 return(
     <div className="container">
             <div className="col-md-12">
@@ -26,7 +35,10 @@ return(
                     <div className="card-body">
                         <h4 className="card-title">{item.title}</h4>
                         <p className="card-text text-truncate">{item.main_text}</p>
-                        <a href={"/blogs/"+ item.id} className="btn btn-primary">Change</a>
+                        <div className="d-flex">
+                            <a href={"/blogs/"+ item.id}><button className="btn btn-primary">Change</button></a>
+                            <button className="btn btn-danger ms-auto" onClick={(event) => Delete(event, item.id)}>Delete</button>
+                        </div>
                     </div>
                 </div>
             </div>

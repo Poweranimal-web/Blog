@@ -4,7 +4,7 @@ import os
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
+import django
 # Create your models here.
 class Roles(models.Model):
     name = models.CharField(max_length=120)
@@ -25,6 +25,10 @@ class Blogs(models.Model):
     title = models.CharField(max_length=120)
     main_text = models.TextField()
     author = models.ForeignKey(Customers,on_delete=models.CASCADE, blank=True, null=True)
+    likes = models.IntegerField(default=0)
+    dislikes = models.IntegerField(default=0)
+    create_date = models.DateField(auto_now_add=True)
+    create_time = models.TimeField(auto_now_add=True)
 class BlogImages(models.Model):
     main_images = models.ImageField(upload_to="main/", blank=True, null=True)
     blog = models.ForeignKey(Blogs,on_delete=models.CASCADE, blank=True, null=True)
