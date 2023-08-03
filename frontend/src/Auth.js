@@ -24,6 +24,7 @@ class Auth extends React.Component{
                 console.log(data);
                 if (data.state === "exist"){
                     Cookies.set("token",data.token);
+                    Cookies.set("id",data.id);
                     this.setState({
                         log: true
                     });

@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Blogs from "./Blogs";
 import DetailBlog from "./Detail_Blog";
 import CreateBlog from "./NewBlog";
+import Main from "./Main";
 class Navbar extends React.Component{
   constructor(props){
     super(props);
@@ -20,13 +21,11 @@ class Navbar extends React.Component{
     }
   };
   const bodyParameters ={"token": this.state.token, "state": "check_auth"};
-  console.log(bodyParameters);
     axios.post("http://127.0.0.1:8000/",bodyParameters, config
     ).then((response)=> 
     {
       let data = response.data;
       console.log(data);
-      Cookies.set("id",data.id);
       if (data.state === "exist"){
         this.setState({
           last_name: data.last_name,
@@ -34,7 +33,7 @@ class Navbar extends React.Component{
           email: data.email,
           login: true
         });
-        this.forceUpdate()
+        this.forceUpdate();
       }
     }).catch((e) => {
       console.error(e.response.data);  
@@ -42,7 +41,8 @@ class Navbar extends React.Component{
   }
   logout(){
     this.setState({last_name:"", first_name:"",email: "" ,login: false, token: ""});
-    Cookies.remove("token")
+    Cookies.remove("token");
+    Cookies.remove("id");
   }
   render(){
     const login = this.state.login;
