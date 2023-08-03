@@ -29,6 +29,11 @@ class Blogs(models.Model):
     dislikes = models.IntegerField(default=0)
     create_date = models.DateField(auto_now_add=True)
     create_time = models.TimeField(auto_now_add=True)
+class ReactionsCustomers(models.Model):
+    likes = models.BooleanField()
+    dislikes = models.BooleanField()
+    customer = models.ForeignKey(Customers,on_delete=models.CASCADE, blank=True, null=True)
+    blog = models.ForeignKey(Blogs,on_delete=models.CASCADE,blank=True,null=True)
 class BlogImages(models.Model):
     main_images = models.ImageField(upload_to="main/", blank=True, null=True)
     blog = models.ForeignKey(Blogs,on_delete=models.CASCADE, blank=True, null=True)

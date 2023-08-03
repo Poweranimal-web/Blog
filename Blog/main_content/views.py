@@ -8,12 +8,13 @@ from rest_framework.parsers import JSONParser
 from django.core.serializers import serialize
 from rest_framework.permissions import AllowAny
 from django.views.decorators.csrf import csrf_protect
-from main_content.models import Customers,MyOwnToken,Blogs,BlogImages
+from main_content.models import Customers,MyOwnToken,Blogs,BlogImages,ReactionsCustomers
 from rest_framework.authtoken.models import Token
 import os
 import json
 from rest_framework.parsers import MultiPartParser
 from django.http import QueryDict
+from django.core.paginator import Paginator
 # Create your views here.
 class MainPage(APIView):
     def post(self, request):
@@ -61,13 +62,67 @@ class BlogsPage(APIView):
 class MainContent(APIView):
     def post(self, request):
         data = request.data
-        blogs = Blogs.objects.all().order_by("-create_date","create_time").values()
-        if data["state"] == "get_data":
-            for blog in blogs:
-                author = Customers.objects.filter(id=blog['author_id']).values()[0]
-                blog["last_name"] = author["last_name"]
-                blog["first_name"] = author["first_name"]
-        return Response(blogs)
+        response = []
+        print(data)
+        if data["state"] == "get_data" and data['customer_id'] != 'undefined':
+                reactions = ReactionsCustomers.objects.filter(customer__id=data["customer_id"]).values()
+                blogs = Blogs.objects.all().order_by("-create_date", "-create_time").values()[data['start']:data['end']]
+                for blog in blogs:
+                    author = Customers.objects.filter(id=blog['author_id']).values()[0]
+                    blog["last_name"] = author["last_name"]
+                    blog["first_name"] = author["first_name"]
+                    for reaction in reactions:
+                        if blog["id"] == reaction["blog_id"]:
+                            if reaction['likes'] == True:
+                                blog["like"] = True
+                                blog["dislike"] = False
+                            elif reaction['dislikes'] == True:
+                                blog["dislike"] = True
+                                blog["like"] = False
+                            else:
+                                blog["like"] = False
+                                blog["dislike"] = False
+                response = blogs
+        elif data["state"] == "get_data" and data['customer_id'] == 'undefined':
+                blogs = Blogs.objects.all().order_by("-create_date", "-create_time").values()[data['start']:data['end']]
+                for blog in blogs:
+                    author = Customers.objects.filter(id=blog['author_id']).values()[0]
+                    blog["last_name"] = author["last_name"]
+                    blog["first_name"] = author["first_name"]
+                response = blogs
+        elif data["state"] == "like":
+            customer = Customers.objects.get(id=int(data["customer_id"]))
+            blog = Blogs.objects.get(id=int(data["blog_id"]))
+            blog.likes = blog.likes + 1
+            ReactionsCustomers.objects.update_or_create(likes=True, dislikes=False, customer=customer, blog=blog)
+            blog.save()
+            response = {"state": "put", "likes": blog.likes, "dislikes": blog.dislikes}
+        elif data["state"] == "dislike":
+            customer = Customers.objects.get(id=int(data["customer_id"]))
+            blog = Blogs.objects.get(id=int(data["blog_id"]))
+            blog.dislikes = blog.dislikes + 1
+            ReactionsCustomers.objects.update_or_create(dislikes=True, likes=False, customer=customer, blog=blog)
+            blog.save()
+            response = {"state": "put", "dislikes": blog.dislikes, "likes": blog.likes}
+        elif data["state"] == "change_on_like":
+            customer = Customers.objects.get(id=int(data["customer_id"]))
+            blog = Blogs.objects.get(id=int(data["blog_id"]))
+            blog.dislikes = blog.dislikes - 1
+            blog.likes = blog.likes + 1
+            ReactionsCustomers.objects.filter(likes=True, dislikes=False, customer=customer, blog=blog).delete()
+            ReactionsCustomers.objects.create(likes=True, dislikes=False, customer=customer, blog=blog)
+            blog.save()
+            response = {"state": "put", "dislikes": blog.dislikes, "likes": blog.likes}
+        elif data["state"] == "change_on_dislike":
+            customer = Customers.objects.get(id=int(data["customer_id"]))
+            blog = Blogs.objects.get(id=int(data["blog_id"]))
+            blog.dislikes = blog.dislikes + 1
+            blog.likes = blog.likes - 1
+            ReactionsCustomers.objects.filter(dislikes=True, likes=False, customer=customer, blog=blog).delete()
+            ReactionsCustomers.objects.create(dislikes=True, likes=False, customer=customer, blog=blog)
+            blog.save()
+            response = {"state": "put", "dislikes": blog.dislikes, "likes": blog.likes}
+        return Response(response)
 class AboutBlog(APIView):
     def get(self, request):
         data = request.query_params
@@ -155,9 +210,9 @@ class AuthPage(APIView):
             return Response(data={"state": "doesn't exist"},status=status.HTTP_200_OK)
         else:
             token = MyOwnToken.objects.filter(user=response['id']).values()[0]
-            response = {}
             response["token"] = token["key"]
             response["state"] = "exist"
+            print(response)
             return Response(data=response,status=status.HTTP_200_OK)
 def check_token(request):
     data = request
