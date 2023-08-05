@@ -8,7 +8,7 @@ from rest_framework.parsers import JSONParser
 from django.core.serializers import serialize
 from rest_framework.permissions import AllowAny
 from django.views.decorators.csrf import csrf_protect
-from main_content.models import Customers,MyOwnToken,Blogs,BlogImages,ReactionsCustomers
+from main_content.models import Customers,MyOwnToken,Blogs,BlogImages,ReactionsCustomers,Comments
 from rest_framework.authtoken.models import Token
 import os
 import json
@@ -136,6 +136,38 @@ class AboutBlog(APIView):
             blog["first_name"] = customer["first_name"]
             response = blog
         return Response(response)
+class AddComment(APIView):
+    def get(self, request):
+        data = request.query_params
+        comments = Comments.objects.filter(blog__id=data["blog_id"], type=data["type"]).order_by("-create_date","-create_time").values()
+        answers = Comments.objects.filter(blog__id=data["blog_id"], type="answer").order_by("-create_date","-create_time").values()
+        for comment in comments:
+            customer = Customers.objects.get(id=comment['customer_id'])
+            comment["last_name"] = customer.last_name
+            comment["first_name"] = customer.first_name
+            comment["write"] = False
+            comment["answers"] = []
+            for answer in answers:
+                if comment["id"] == answer["answer_on"]:
+                    customer = Customers.objects.get(id=answer['customer_id'])
+                    answer["last_name"] = customer.last_name
+                    answer["first_name"] = customer.first_name
+                    comment["answers"].append(answer)
+        return Response(comments)
+    def post(self, request):
+        data = request.data
+        response = {}
+        if data["state"] == "create_comment":
+            blog = Blogs.objects.get(id=data["blog_id"])
+            customer = Customers.objects.get(id=data["customer_id"])
+            Comments.objects.create(comment=data["comment"], type=data["type"], blog=blog, customer=customer)
+            response["state"] = "created"
+        elif data["state"] == "create_answer":
+            blog = Blogs.objects.get(id=data["blog_id"])
+            customer = Customers.objects.get(id=data["customer_id"])
+            Comments.objects.create(comment=data["comment"], type=data["type"], blog=blog, customer=customer, answer_on=data["answer_on"])
+            response["state"] = "created"
+        return Response(response)
 class DetailBlogPage(APIView):
     parser_classes = [MultiPartParser]
     def get(self, request):
@@ -212,7 +244,6 @@ class AuthPage(APIView):
             token = MyOwnToken.objects.filter(user=response['id']).values()[0]
             response["token"] = token["key"]
             response["state"] = "exist"
-            print(response)
             return Response(data=response,status=status.HTTP_200_OK)
 def check_token(request):
     data = request

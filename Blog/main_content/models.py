@@ -29,6 +29,14 @@ class Blogs(models.Model):
     dislikes = models.IntegerField(default=0)
     create_date = models.DateField(auto_now_add=True)
     create_time = models.TimeField(auto_now_add=True)
+class Comments(models.Model):
+    comment = models.TextField()
+    blog = models.ForeignKey(Blogs,on_delete=models.CASCADE, blank=True, null=True)
+    customer = models.ForeignKey(Customers,on_delete=models.CASCADE, blank=True, null=True)
+    type = models.CharField(max_length=50)
+    answer_on = models.IntegerField(blank=True, null=True)
+    create_date = models.DateField(auto_now_add=True)
+    create_time = models.TimeField(auto_now_add=True)
 class ReactionsCustomers(models.Model):
     likes = models.BooleanField()
     dislikes = models.BooleanField()
